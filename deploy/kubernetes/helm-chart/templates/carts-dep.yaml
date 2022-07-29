@@ -14,10 +14,11 @@ spec:
     metadata:
       labels:
         name: carts
-      {{- if .Values.istio.enabled }}
       annotations:
-        sidecar.istio.io/rewriteAppHTTPProbers: "true"
-      {{- end }}
+        instrumentation.opentelemetry.io/inject-java: "true"
+       {{- if .Values.istio.enabled }}
+         sidecar.istio.io/rewriteAppHTTPProbers: "true"
+       {{- end }}
     spec:
       containers:
       - command:
@@ -34,6 +35,10 @@ spec:
          {{- end }}
          - name: JAVA_OPTS
            value: {{ .Values.java.options }}
+         - name: INSPECTIT_SERVICE_NAME
+           value: carts
+         - name: INSPECTIT_CONFIG_HTTP_URL
+           value: http://inspectit-ocelot-configurationserver.monitoring:8090/api/v1/agent/configuration
         resources:
 {{ toYaml .Values.carts.resources | indent 10 }}
         ports:
